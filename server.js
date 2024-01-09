@@ -1,41 +1,34 @@
 const express = require("express");
 const cors = require("cors");
-const app = express();
-const mongoClient = require("mongodb").MongoClient; // część modułu mongodb, dająca dostęp do operacji CRUD
+const mongoose = require('mongoose'); // importuje również mongodb
 
 const employeesRoutes = require("./routes/employees.routes");
 const departmentsRoutes = require("./routes/departments.routes");
 const productsRoutes = require("./routes/products.routes");
 
-mongoClient.connect( "mongodb://0.0.0.0:27017", { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => { // połączenie serwera z bazą
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("Successfully connected to the database");
+const app = express();
 
-      const db = client.db("companyDB"); // wybierz odpowiednią bazę danych
-      const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-      app.use(cors());
-      app.use(express.json());
-      app.use(express.urlencoded({ extended: false }));
+app.use("/api", employeesRoutes);
+app.use("/api", departmentsRoutes);
+app.use("/api", productsRoutes);
 
-      app.use((req, res, next) => { // daje dostęp do bazy w każdym endpoincie
-        req.db = db;
-        next();
-      });
+app.use((req, res) => {
+  res.status(404).send({ message: "Not found..." });
+});
 
-      app.use("/api", employeesRoutes);
-      app.use("/api", departmentsRoutes);
-      app.use("/api", productsRoutes);
+// connects our backend code with the database
+mongoose.connect('mongodb://0.0.0.0:27017/companyDB', { useNewUrlParser: true });
+const db = mongoose.connection;
 
-      app.use((req, res) => {
-        res.status(404).send({ message: "Not found..." });
-      });
+db.once('open', () => {
+  console.log('Connected to the database');
+});
+db.on('error', err => console.log('Error ' + err));
 
-      app.listen("8000", () => {
-        console.log("Server is running on port: 8000");
-      });
-    }
-  }
-);
+app.listen('8000', () => {
+  console.log('Server is running on port: 8000');
+});
