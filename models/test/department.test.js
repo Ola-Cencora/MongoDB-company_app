@@ -1,6 +1,5 @@
 const Department = require("../department.model");
 const expect = require("chai").expect;
-const mongoose = require("mongoose");
 
 describe("Department", () => {
   it('should throw an error if no "name" arg', async () => {
@@ -8,10 +7,6 @@ describe("Department", () => {
 
     const err = dep.validateSync();
     expect(err.errors.name).to.exist;
-
-    after(() => {
-      mongoose.models = {};
-    });
   });
 
   it('should throw an error if "name" is not a string', () => {
@@ -22,9 +17,6 @@ describe("Department", () => {
       const err = dep.validateSync();
       expect(err.errors.name).to.exist;
     }
-    after(() => {
-      mongoose.models = {};
-    });
   });
 
   it('should throw an error if "name" is shorter than 5 or longer than 20', () => {
@@ -35,9 +27,6 @@ describe("Department", () => {
       const err = dep.validateSync();
       expect(err.errors.name).to.exist;
     }
-    after(() => {
-      mongoose.models = {};
-    });
   });
 
   it('should NOT throw an error if "name" is OK', () => {
@@ -48,9 +37,6 @@ describe("Department", () => {
       const err = dep.validateSync();
       expect(err).to.not.exist;
     }
-    after(() => {
-      mongoose.models = {};
-    });
   });
 
 });
